@@ -1,0 +1,144 @@
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "sonner";
+import { Shield } from "lucide-react";
+
+export const Route = createFileRoute("/auth")({
+  head: () => ({ meta: [{ title: "Sign in — Helix Support" }] }),
+  component: AuthPage,
+});
+
+const emailSchema = z.string().trim().email().max(255);
+const passwordSchema = z.string().min(8).max(72);
+const nameSchema = z.string().trim().min(1).max(100);
+
+function AuthPage() {
+  const { user, loading, isStaff } = useAuth();
+  const nav = useNavigate();
+  useEffect(() => {
+    if (!loading && user) nav({ to: isStaff ? "/staff" : "/portal" });
+  }, [user, loading, isStaff, nav]);
+
+  return (
+    <div className="min-h-screen grid lg:grid-cols-2 bg-background">
+      <div className="hidden lg:flex flex-col justify-between p-12 bg-sidebar text-sidebar-foreground">
+        <Link to="/" className="flex items-center gap-2 font-semibold">
+          <div className="h-8 w-8 rounded-lg bg-primary/20 grid place-items-center">
+            <Shield className="h-4 w-4 text-primary" />
+          </div>
+          Helix Support
+        </Link>
+        <div>
+          <h2 className="text-3xl font-semibold leading-tight">AI-powered ticket operations for regulated gaming.</h2>
+          <p className="mt-4 text-sidebar-foreground/70 max-w-md">
+            Triage, route, and resolve customer issues — withdrawals, KYC, betting disputes — with real-time AI assistance.
+          </p>
+        </div>
+        <p className="text-xs text-sidebar-foreground/60">© {new Date().getFullYear()} Helix Support</p>
+      </div>
+      <div className="flex items-center justify-center p-6">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>Welcome</CardTitle>
+            <CardDescription>Sign in to your account or create a new one.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue="signin">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="signin">Sign in</TabsTrigger>
+                <TabsTrigger value="signup">Sign up</TabsTrigger>
+              </TabsList>
+              <TabsContent value="signin"><SignInForm /></TabsContent>
+              <TabsContent value="signup"><SignUpForm /></TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+function SignInForm() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const ev = emailSchema.safeParse(email);
+    const pv = passwordSchema.safeParse(password);
+    if (!ev.success || !pv.success) return toast.error("Enter a valid email and password (min 8 chars).");
+    setBusy(true);
+    const { error } = await supabase.auth.signInWithPassword({ email: ev.data, password: pv.data });
+    setBusy(false);
+    if (error) return toast.error(error.message);
+    toast.success("Signed in");
+  };
+
+  return (
+    <form onSubmit={submit} className="space-y-4 mt-4">
+      <div className="space-y-2">
+        <Label htmlFor="si-email">Email</Label>
+        <Input id="si-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="si-pwd">Password</Label>
+        <Input id="si-pwd" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+      </div>
+      <Button type="submit" className="w-full" disabled={busy}>{busy ? "Signing in…" : "Sign in"}</Button>
+    </form>
+  );
+}
+
+function SignUpForm() {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const nv = nameSchema.safeParse(name);
+    const ev = emailSchema.safeParse(email);
+    const pv = passwordSchema.safeParse(password);
+    if (!nv.success || !ev.success || !pv.success) return toast.error("Please check your details (password min 8 chars).");
+    setBusy(true);
+    const { error } = await supabase.auth.signUp({
+      email: ev.data,
+      password: pv.data,
+      options: {
+        emailRedirectTo: `${window.location.origin}/`,
+        data: { full_name: nv.data },
+      },
+    });
+    setBusy(false);
+    if (error) return toast.error(error.message);
+    toast.success("Account created. Check your email to confirm, then sign in.");
+  };
+
+  return (
+    <form onSubmit={submit} className="space-y-4 mt-4">
+      <div className="space-y-2">
+        <Label htmlFor="su-name">Full name</Label>
+        <Input id="su-name" value={name} onChange={(e) => setName(e.target.value)} required />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="su-email">Email</Label>
+        <Input id="su-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="su-pwd">Password</Label>
+        <Input id="su-pwd" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8} />
+      </div>
+      <Button type="submit" className="w-full" disabled={busy}>{busy ? "Creating…" : "Create account"}</Button>
+    </form>
+  );
+}
