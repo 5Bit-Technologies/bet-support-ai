@@ -21,6 +21,11 @@ export const CATEGORIES = [
   { value: "verification", label: "Account verification" },
   { value: "login", label: "Login problems" },
   { value: "promotions", label: "Promotions / bonuses" },
+  { value: "hr", label: "HR" },
+  { value: "it", label: "IT" },
+  { value: "finance", label: "Finance" },
+  { value: "facilities", label: "Facilities" },
+  { value: "internal_security", label: "Internal security" },
   { value: "other", label: "Other" },
 ] as const;
 
