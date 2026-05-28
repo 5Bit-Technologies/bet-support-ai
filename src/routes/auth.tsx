@@ -163,19 +163,29 @@ function SignUpForm() {
     });
     if (error) { setBusy(false); return toast.error(error.message); }
 
-    // Try to claim the requested role (only works if email auto-confirm is on
-    // OR user signs in immediately). For staff/admin codes we attempt right away.
-    if (data.session && role !== "customer") {
+    // If staff/admin, we need an active session to call the RPC. If signUp didn't
+    // return a session (email-confirm enabled), try an immediate sign-in.
+    let session = data.session;
+    if (role !== "customer" && !session) {
+      const { data: si } = await supabase.auth.signInWithPassword({ email: ev.data, password: pv.data });
+      session = si.session;
+    }
+
+    if (role !== "customer") {
+      if (!session) {
+        setBusy(false);
+        return toast.error("Account created. Please confirm your email, sign in, then re-submit your access code via the admin team.");
+      }
       const { error: rpcErr } = await supabase.rpc("claim_signup_role", { _role: role, _code: code.trim() });
       if (rpcErr) {
         setBusy(false);
-        return toast.error(`Account created, but role claim failed: ${rpcErr.message}`);
+        return toast.error(`Role claim failed: ${rpcErr.message}`);
       }
     }
     setBusy(false);
     toast.success(
-      data.session
-        ? "Account created."
+      session
+        ? `Account created. Welcome to the ${role} workspace.`
         : "Account created. Check your email to confirm, then sign in.",
     );
   };
