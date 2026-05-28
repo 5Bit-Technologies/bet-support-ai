@@ -15,6 +15,7 @@ import { Route as StaffIndexRouteImport } from './routes/staff/index'
 import { Route as PortalIndexRouteImport } from './routes/portal/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as StaffTicketsRouteImport } from './routes/staff/tickets'
+import { Route as StaffNewRouteImport } from './routes/staff/new'
 import { Route as PortalNewRouteImport } from './routes/portal/new'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
 import { Route as AdminTicketsRouteImport } from './routes/admin/tickets'
@@ -50,6 +51,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
 const StaffTicketsRoute = StaffTicketsRouteImport.update({
   id: '/staff/tickets',
   path: '/staff/tickets',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StaffNewRoute = StaffNewRouteImport.update({
+  id: '/staff/new',
+  path: '/staff/new',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PortalNewRoute = PortalNewRouteImport.update({
@@ -89,6 +95,7 @@ export interface FileRoutesByFullPath {
   '/admin/tickets': typeof AdminTicketsRoute
   '/admin/users': typeof AdminUsersRoute
   '/portal/new': typeof PortalNewRoute
+  '/staff/new': typeof StaffNewRoute
   '/staff/tickets': typeof StaffTicketsRoute
   '/admin/': typeof AdminIndexRoute
   '/portal/': typeof PortalIndexRoute
@@ -103,6 +110,7 @@ export interface FileRoutesByTo {
   '/admin/tickets': typeof AdminTicketsRoute
   '/admin/users': typeof AdminUsersRoute
   '/portal/new': typeof PortalNewRoute
+  '/staff/new': typeof StaffNewRoute
   '/staff/tickets': typeof StaffTicketsRoute
   '/admin': typeof AdminIndexRoute
   '/portal': typeof PortalIndexRoute
@@ -118,6 +126,7 @@ export interface FileRoutesById {
   '/admin/tickets': typeof AdminTicketsRoute
   '/admin/users': typeof AdminUsersRoute
   '/portal/new': typeof PortalNewRoute
+  '/staff/new': typeof StaffNewRoute
   '/staff/tickets': typeof StaffTicketsRoute
   '/admin/': typeof AdminIndexRoute
   '/portal/': typeof PortalIndexRoute
@@ -134,6 +143,7 @@ export interface FileRouteTypes {
     | '/admin/tickets'
     | '/admin/users'
     | '/portal/new'
+    | '/staff/new'
     | '/staff/tickets'
     | '/admin/'
     | '/portal/'
@@ -148,6 +158,7 @@ export interface FileRouteTypes {
     | '/admin/tickets'
     | '/admin/users'
     | '/portal/new'
+    | '/staff/new'
     | '/staff/tickets'
     | '/admin'
     | '/portal'
@@ -162,6 +173,7 @@ export interface FileRouteTypes {
     | '/admin/tickets'
     | '/admin/users'
     | '/portal/new'
+    | '/staff/new'
     | '/staff/tickets'
     | '/admin/'
     | '/portal/'
@@ -177,6 +189,7 @@ export interface RootRouteChildren {
   AdminTicketsRoute: typeof AdminTicketsRoute
   AdminUsersRoute: typeof AdminUsersRoute
   PortalNewRoute: typeof PortalNewRoute
+  StaffNewRoute: typeof StaffNewRoute
   StaffTicketsRoute: typeof StaffTicketsRoute
   AdminIndexRoute: typeof AdminIndexRoute
   PortalIndexRoute: typeof PortalIndexRoute
@@ -230,6 +243,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StaffTicketsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/staff/new': {
+      id: '/staff/new'
+      path: '/staff/new'
+      fullPath: '/staff/new'
+      preLoaderRoute: typeof StaffNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/portal/new': {
       id: '/portal/new'
       path: '/portal/new'
@@ -281,6 +301,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminTicketsRoute: AdminTicketsRoute,
   AdminUsersRoute: AdminUsersRoute,
   PortalNewRoute: PortalNewRoute,
+  StaffNewRoute: StaffNewRoute,
   StaffTicketsRoute: StaffTicketsRoute,
   AdminIndexRoute: AdminIndexRoute,
   PortalIndexRoute: PortalIndexRoute,

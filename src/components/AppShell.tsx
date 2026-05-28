@@ -15,6 +15,7 @@ const customerNav: NavItem[] = [
 const staffNav: NavItem[] = [
   { to: "/staff", label: "Inbox", icon: Inbox },
   { to: "/staff/tickets", label: "All tickets", icon: Ticket },
+  { to: "/staff/new", label: "New internal ticket", icon: Plus },
 ];
 const adminNav: NavItem[] = [
   { to: "/admin", label: "Analytics", icon: BarChart3 },
