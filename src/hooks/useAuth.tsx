@@ -1,6 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import type { Session, User } from "@supabase/supabase-js";
+import type { Session, User, SupabaseClient } from "@supabase/supabase-js";
 
 export type AppRole = "customer" | "staff" | "admin";
 
@@ -17,39 +16,50 @@ interface AuthCtx {
 const Ctx = createContext<AuthCtx | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const [client, setClient] = useState<SupabaseClient | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const { data: sub } = supabase.auth.onAuthStateChange((_evt, s) => {
-      setSession(s);
-      setUser(s?.user ?? null);
-      if (s?.user) {
-        setTimeout(() => fetchRoles(s.user.id), 0);
-      } else {
-        setRoles([]);
-      }
-    });
+    let unsub: (() => void) | undefined;
+    let cancelled = false;
 
-    supabase.auth.getSession().then(({ data }) => {
+    (async () => {
+      // Dynamic import keeps the browser-only Supabase client out of SSR
+      const { supabase } = await import("@/integrations/supabase/client");
+      if (cancelled) return;
+      setClient(supabase);
+
+      const fetchRoles = async (uid: string) => {
+        const { data } = await supabase.from("user_roles").select("role").eq("user_id", uid);
+        setRoles((data ?? []).map((r) => r.role as AppRole));
+      };
+
+      const { data: sub } = supabase.auth.onAuthStateChange((_evt, s) => {
+        setSession(s);
+        setUser(s?.user ?? null);
+        if (s?.user) setTimeout(() => fetchRoles(s.user.id), 0);
+        else setRoles([]);
+      });
+      unsub = () => sub.subscription.unsubscribe();
+
+      const { data } = await supabase.auth.getSession();
       setSession(data.session);
       setUser(data.session?.user ?? null);
-      if (data.session?.user) fetchRoles(data.session.user.id).finally(() => setLoading(false));
-      else setLoading(false);
-    });
+      if (data.session?.user) await fetchRoles(data.session.user.id);
+      setLoading(false);
+    })();
 
-    return () => sub.subscription.unsubscribe();
+    return () => {
+      cancelled = true;
+      unsub?.();
+    };
   }, []);
 
-  const fetchRoles = async (uid: string) => {
-    const { data } = await supabase.from("user_roles").select("role").eq("user_id", uid);
-    setRoles((data ?? []).map((r) => r.role as AppRole));
-  };
-
   const signOut = async () => {
-    await supabase.auth.signOut();
+    await client?.auth.signOut();
     setRoles([]);
   };
 
