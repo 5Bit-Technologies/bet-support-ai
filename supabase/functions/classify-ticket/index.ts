@@ -3,13 +3,14 @@ import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 interface ClassifyInput {
   subject: string;
   description: string;
+  audience?: "customer" | "staff";
 }
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
-    const { subject, description } = (await req.json()) as ClassifyInput;
+    const { subject, description, audience = "customer" } = (await req.json()) as ClassifyInput;
     if (!subject || !description) {
       return new Response(JSON.stringify({ error: "subject and description required" }), {
         status: 400,
@@ -25,25 +26,31 @@ Deno.serve(async (req) => {
       });
     }
 
+    const customerCategories = ["withdrawals", "deposits", "betting", "verification", "login", "promotions", "other"];
+    const staffCategories = ["hr", "it", "finance", "facilities", "internal_security", "other"];
+    const allowedCategories = audience === "staff" ? staffCategories : customerCategories;
+
+    const departmentHint = audience === "staff"
+      ? "Best-fit internal team: HR, IT, Finance, Facilities, Internal Security, or General Operations."
+      : "Best-fit team: Payments, Compliance/KYC, Trading/Sportsbook, Account Security, VIP/Promotions, or General Support.";
+
+    const systemPrompt = audience === "staff"
+      ? "You are a triage classifier for INTERNAL employee support tickets at an online gambling/betting operator. Route to the correct internal department. 'urgent' = production outage, security incident, payroll blocker. 'high' = blocks an employee from working. 'medium' = standard request. 'low' = informational."
+      : "You are a triage classifier for a regulated online gambling/betting operator's CUSTOMER support desk. Be precise. Urgency rubric: 'urgent' = money stuck, account locked, KYC blocking active play, suspected fraud. 'high' = repeated failed deposit/withdraw, betting void disputes. 'medium' = general account/bonus questions. 'low' = informational.";
+
     const tools = [
       {
         type: "function",
         function: {
           name: "classify_ticket",
-          description: "Classify a support ticket for a gambling/betting company.",
+          description: "Classify a support ticket.",
           parameters: {
             type: "object",
             properties: {
-              category: {
-                type: "string",
-                enum: ["withdrawals", "deposits", "betting", "verification", "login", "promotions", "other"],
-              },
+              category: { type: "string", enum: allowedCategories },
               priority: { type: "string", enum: ["low", "medium", "high", "urgent"] },
               sentiment: { type: "string", enum: ["positive", "neutral", "negative", "frustrated"] },
-              suggested_department: {
-                type: "string",
-                description: "Best-fit team: Payments, Compliance/KYC, Trading/Sportsbook, Account Security, VIP/Promotions, or General Support.",
-              },
+              suggested_department: { type: "string", description: departmentHint },
               confidence: { type: "number", description: "0.0 - 1.0" },
               summary: { type: "string", description: "1-sentence summary." },
               reasoning: { type: "string", description: "Why this classification." },
@@ -62,13 +69,9 @@ Deno.serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: "google/gemini-2.5-flash",
         messages: [
-          {
-            role: "system",
-            content:
-              "You are a triage classifier for a regulated online gambling/betting operator's support desk. Be precise. Urgency rubric: 'urgent' = money stuck, account locked, KYC blocking active play, suspected fraud. 'high' = repeated failed deposit/withdraw, betting void disputes. 'medium' = general account/bonus questions. 'low' = informational.",
-          },
+          { role: "system", content: systemPrompt },
           { role: "user", content: `Subject: ${subject}\n\nDescription: ${description}` },
         ],
         tools,

@@ -200,6 +200,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      claim_signup_role: {
+        Args: { _code: string; _role: Database["public"]["Enums"]["app_role"] }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -219,6 +223,11 @@ export type Database = {
         | "login"
         | "promotions"
         | "other"
+        | "hr"
+        | "it"
+        | "finance"
+        | "facilities"
+        | "internal_security"
       ticket_priority: "low" | "medium" | "high" | "urgent"
       ticket_sentiment: "positive" | "neutral" | "negative" | "frustrated"
       ticket_status:
@@ -364,6 +373,11 @@ export const Constants = {
         "login",
         "promotions",
         "other",
+        "hr",
+        "it",
+        "finance",
+        "facilities",
+        "internal_security",
       ],
       ticket_priority: ["low", "medium", "high", "urgent"],
       ticket_sentiment: ["positive", "neutral", "negative", "frustrated"],
