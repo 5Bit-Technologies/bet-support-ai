@@ -11,6 +11,14 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as StaffIndexRouteImport } from './routes/staff/index'
+import { Route as PortalIndexRouteImport } from './routes/portal/index'
+import { Route as StaffTicketsRouteImport } from './routes/staff/tickets'
+import { Route as PortalNewRouteImport } from './routes/portal/new'
+import { Route as AdminTicketsRouteImport } from './routes/admin/tickets'
+import { Route as StaffTicketIdRouteImport } from './routes/staff/ticket.$id'
+import { Route as PortalTicketIdRouteImport } from './routes/portal/ticket.$id'
+import { Route as AdminTicketIdRouteImport } from './routes/admin/ticket.$id'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -22,31 +30,134 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StaffIndexRoute = StaffIndexRouteImport.update({
+  id: '/staff/',
+  path: '/staff/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortalIndexRoute = PortalIndexRouteImport.update({
+  id: '/portal/',
+  path: '/portal/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StaffTicketsRoute = StaffTicketsRouteImport.update({
+  id: '/staff/tickets',
+  path: '/staff/tickets',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortalNewRoute = PortalNewRouteImport.update({
+  id: '/portal/new',
+  path: '/portal/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminTicketsRoute = AdminTicketsRouteImport.update({
+  id: '/admin/tickets',
+  path: '/admin/tickets',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StaffTicketIdRoute = StaffTicketIdRouteImport.update({
+  id: '/staff/ticket/$id',
+  path: '/staff/ticket/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortalTicketIdRoute = PortalTicketIdRouteImport.update({
+  id: '/portal/ticket/$id',
+  path: '/portal/ticket/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminTicketIdRoute = AdminTicketIdRouteImport.update({
+  id: '/admin/ticket/$id',
+  path: '/admin/ticket/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/admin/tickets': typeof AdminTicketsRoute
+  '/portal/new': typeof PortalNewRoute
+  '/staff/tickets': typeof StaffTicketsRoute
+  '/portal/': typeof PortalIndexRoute
+  '/staff/': typeof StaffIndexRoute
+  '/admin/ticket/$id': typeof AdminTicketIdRoute
+  '/portal/ticket/$id': typeof PortalTicketIdRoute
+  '/staff/ticket/$id': typeof StaffTicketIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/admin/tickets': typeof AdminTicketsRoute
+  '/portal/new': typeof PortalNewRoute
+  '/staff/tickets': typeof StaffTicketsRoute
+  '/portal': typeof PortalIndexRoute
+  '/staff': typeof StaffIndexRoute
+  '/admin/ticket/$id': typeof AdminTicketIdRoute
+  '/portal/ticket/$id': typeof PortalTicketIdRoute
+  '/staff/ticket/$id': typeof StaffTicketIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/admin/tickets': typeof AdminTicketsRoute
+  '/portal/new': typeof PortalNewRoute
+  '/staff/tickets': typeof StaffTicketsRoute
+  '/portal/': typeof PortalIndexRoute
+  '/staff/': typeof StaffIndexRoute
+  '/admin/ticket/$id': typeof AdminTicketIdRoute
+  '/portal/ticket/$id': typeof PortalTicketIdRoute
+  '/staff/ticket/$id': typeof StaffTicketIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/admin/tickets'
+    | '/portal/new'
+    | '/staff/tickets'
+    | '/portal/'
+    | '/staff/'
+    | '/admin/ticket/$id'
+    | '/portal/ticket/$id'
+    | '/staff/ticket/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth'
-  id: '__root__' | '/' | '/auth'
+  to:
+    | '/'
+    | '/auth'
+    | '/admin/tickets'
+    | '/portal/new'
+    | '/staff/tickets'
+    | '/portal'
+    | '/staff'
+    | '/admin/ticket/$id'
+    | '/portal/ticket/$id'
+    | '/staff/ticket/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/auth'
+    | '/admin/tickets'
+    | '/portal/new'
+    | '/staff/tickets'
+    | '/portal/'
+    | '/staff/'
+    | '/admin/ticket/$id'
+    | '/portal/ticket/$id'
+    | '/staff/ticket/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
+  AdminTicketsRoute: typeof AdminTicketsRoute
+  PortalNewRoute: typeof PortalNewRoute
+  StaffTicketsRoute: typeof StaffTicketsRoute
+  PortalIndexRoute: typeof PortalIndexRoute
+  StaffIndexRoute: typeof StaffIndexRoute
+  AdminTicketIdRoute: typeof AdminTicketIdRoute
+  PortalTicketIdRoute: typeof PortalTicketIdRoute
+  StaffTicketIdRoute: typeof StaffTicketIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +176,76 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/staff/': {
+      id: '/staff/'
+      path: '/staff'
+      fullPath: '/staff/'
+      preLoaderRoute: typeof StaffIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portal/': {
+      id: '/portal/'
+      path: '/portal'
+      fullPath: '/portal/'
+      preLoaderRoute: typeof PortalIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/staff/tickets': {
+      id: '/staff/tickets'
+      path: '/staff/tickets'
+      fullPath: '/staff/tickets'
+      preLoaderRoute: typeof StaffTicketsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portal/new': {
+      id: '/portal/new'
+      path: '/portal/new'
+      fullPath: '/portal/new'
+      preLoaderRoute: typeof PortalNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/tickets': {
+      id: '/admin/tickets'
+      path: '/admin/tickets'
+      fullPath: '/admin/tickets'
+      preLoaderRoute: typeof AdminTicketsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/staff/ticket/$id': {
+      id: '/staff/ticket/$id'
+      path: '/staff/ticket/$id'
+      fullPath: '/staff/ticket/$id'
+      preLoaderRoute: typeof StaffTicketIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portal/ticket/$id': {
+      id: '/portal/ticket/$id'
+      path: '/portal/ticket/$id'
+      fullPath: '/portal/ticket/$id'
+      preLoaderRoute: typeof PortalTicketIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/ticket/$id': {
+      id: '/admin/ticket/$id'
+      path: '/admin/ticket/$id'
+      fullPath: '/admin/ticket/$id'
+      preLoaderRoute: typeof AdminTicketIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
+  AdminTicketsRoute: AdminTicketsRoute,
+  PortalNewRoute: PortalNewRoute,
+  StaffTicketsRoute: StaffTicketsRoute,
+  PortalIndexRoute: PortalIndexRoute,
+  StaffIndexRoute: StaffIndexRoute,
+  AdminTicketIdRoute: AdminTicketIdRoute,
+  PortalTicketIdRoute: PortalTicketIdRoute,
+  StaffTicketIdRoute: StaffTicketIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
