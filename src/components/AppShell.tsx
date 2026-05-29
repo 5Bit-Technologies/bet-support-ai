@@ -114,22 +114,14 @@ export function AppShell({ children, area }: { children: ReactNode; area: Area }
             );
           })}
 
-          <div className="pt-3 mt-3 border-t border-white/10 space-y-1">
-            {(isStaff || isAdmin) && area !== "staff" && (
-              <Link to="/staff" className="flex items-center gap-3 rounded-md px-3 py-2 text-xs text-white/50 hover:bg-white/10 hover:text-white">
-                <LayoutDashboard className="h-3.5 w-3.5" /> Switch to Staff
-              </Link>
-            )}
-            {isAdmin && area !== "admin" && (
-              <Link to="/admin" className="flex items-center gap-3 rounded-md px-3 py-2 text-xs text-white/50 hover:bg-white/10 hover:text-white">
-                <BarChart3 className="h-3.5 w-3.5" /> Switch to Admin
-              </Link>
-            )}
-            {area !== "portal" && (
-              <Link to="/portal" className="flex items-center gap-3 rounded-md px-3 py-2 text-xs text-white/50 hover:bg-white/10 hover:text-white">
-                <UserRound className="h-3.5 w-3.5" /> Switch to Customer
-              </Link>
-            )}
+          <div className="pt-3 mt-3 border-t border-white/10">
+            <button
+              onClick={async () => { await signOut(); nav({ to: "/auth" }); }}
+              className="w-full flex items-center gap-3 rounded-md px-3 py-2 text-xs text-white/60 hover:bg-white/10 hover:text-white"
+              title="Sign in as a different role"
+            >
+              <LogOut className="h-3.5 w-3.5" /> Switch dashboard (sign in again)
+            </button>
           </div>
         </nav>
         <div className="p-3 border-t border-white/10">
