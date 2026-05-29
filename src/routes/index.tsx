@@ -54,7 +54,8 @@ function Landing() {
         </p>
         <div className="mt-8 flex items-center justify-center gap-3">
           <Link to="/auth"><Button size="lg">Open a ticket</Button></Link>
-          <Link to="/auth"><Button size="lg" variant="outline">Staff login</Button></Link>
+          <Link to="/auth"><Button size="lg" variant="outline">Login</Button></Link>
+
         </div>
       </section>
 
