@@ -1,4 +1,4 @@
-import { createFileRoute, useParams, Link } from "@tanstack/react-router";
+import { createFileRoute, useParams, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { AppShell, RequireAuth } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,8 +13,9 @@ import { Label } from "@/components/ui/label";
 import { StatusBadge, PriorityBadge, SentimentBadge } from "@/components/TicketBadges";
 import { STATUSES, PRIORITIES, CATEGORIES } from "@/lib/ticket-utils";
 import { toast } from "sonner";
-import { ArrowLeft, Sparkles, Lock, Paperclip } from "lucide-react";
+import { ArrowLeft, Sparkles, Lock, Paperclip, Trash2, ShieldCheck } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+
 
 export const Route = createFileRoute("/portal/ticket/$id")({
   head: () => ({ meta: [{ title: "Ticket — Helix" }] }),
@@ -23,7 +24,8 @@ export const Route = createFileRoute("/portal/ticket/$id")({
 
 export function TicketDetail({ backTo }: { backTo: string }) {
   const { id } = useParams({ strict: false }) as { id: string };
-  const { user, isStaff } = useAuth();
+  const { user, isStaff, isAdmin } = useAuth();
+  const nav = useNavigate();
   const [ticket, setTicket] = useState<any>(null);
   const [messages, setMessages] = useState<any[]>([]);
   const [attachments, setAttachments] = useState<any[]>([]);
@@ -74,6 +76,17 @@ export function TicketDetail({ backTo }: { backTo: string }) {
     if (error || !data) return toast.error("Could not get file");
     window.open(data.signedUrl, "_blank");
   };
+
+  const deleteTicket = async () => {
+    if (!confirm("Permanently delete this ticket? This cannot be undone.")) return;
+    setBusy(true);
+    const { error } = await supabase.from("tickets").delete().eq("id", id);
+    setBusy(false);
+    if (error) return toast.error(error.message);
+    toast.success("Ticket deleted");
+    nav({ to: backTo as any });
+  };
+
 
   if (loading) return <div className="p-6">Loading…</div>;
   if (!ticket) return <div className="p-6">Ticket not found.</div>;
@@ -199,6 +212,22 @@ export function TicketDetail({ backTo }: { backTo: string }) {
                     <SelectContent>{CATEGORIES.map((c) => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}</SelectContent>
                   </Select>
                 </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {isAdmin && (
+            <Card className="border-fuchsia-500/40">
+              <CardHeader>
+                <CardTitle className="text-sm flex items-center gap-2 text-fuchsia-600 dark:text-fuchsia-400">
+                  <ShieldCheck className="h-4 w-4" /> Admin actions
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <p className="text-xs text-muted-foreground">Destructive actions only available to administrators.</p>
+                <Button variant="destructive" size="sm" className="w-full" disabled={busy} onClick={deleteTicket}>
+                  <Trash2 className="h-4 w-4 mr-1" /> Delete ticket
+                </Button>
               </CardContent>
             </Card>
           )}
