@@ -5,13 +5,17 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { StatusBadge, PriorityBadge, SentimentBadge } from "@/components/TicketBadges";
-import { STATUSES, PRIORITIES, CATEGORIES } from "@/lib/ticket-utils";
+import { STATUSES, PRIORITIES, CATEGORIES, STAFF_CATEGORIES, CUSTOMER_CATEGORIES } from "@/lib/ticket-utils";
 import { Search, Sparkles } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
-interface Props { basePath: "/staff/ticket" | "/admin/ticket"; }
+interface Props {
+  basePath: "/staff/ticket" | "/admin/ticket";
+  /** Restrict the list to internal staff tickets or customer tickets. Omit for all (admin). */
+  audience?: "staff" | "customer";
+}
 
-export function TicketsTable({ basePath }: Props) {
+export function TicketsTable({ basePath, audience }: Props) {
   const [tickets, setTickets] = useState<any[]>([]);
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<string>("all");
@@ -19,8 +23,14 @@ export function TicketsTable({ basePath }: Props) {
   const [category, setCategory] = useState<string>("all");
   const [loading, setLoading] = useState(true);
 
+  const allowedCategories = audience === "staff" ? STAFF_CATEGORIES : audience === "customer" ? CUSTOMER_CATEGORIES : null;
+  const categoryOptions = allowedCategories
+    ? CATEGORIES.filter((c) => (allowedCategories as readonly string[]).includes(c.value))
+    : CATEGORIES;
+
   const load = async () => {
     let query = supabase.from("tickets").select("*, profile:profiles!tickets_user_id_fkey(email,full_name)").order("created_at", { ascending: false }).limit(200);
+    if (allowedCategories) query = query.in("category", allowedCategories as any);
     if (status !== "all") query = query.eq("status", status as any);
     if (priority !== "all") query = query.eq("priority", priority as any);
     if (category !== "all") query = query.eq("category", category as any);
