@@ -91,7 +91,6 @@ function SignInForm() {
   const nav = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<AppRole>("customer");
   const [busy, setBusy] = useState(false);
 
   const submit = async (e: React.FormEvent) => {
@@ -103,26 +102,19 @@ function SignInForm() {
     const { data, error } = await supabase.auth.signInWithPassword({ email: ev.data, password: pv.data });
     if (error || !data.user) { setBusy(false); return toast.error(error?.message ?? "Sign-in failed"); }
 
+    // Route based on the account's ACTUAL role, not a dropdown selection.
     const { data: rows } = await supabase.from("user_roles").select("role").eq("user_id", data.user.id);
     const userRoles = (rows ?? []).map((r) => r.role as AppRole);
-    const has = role === "customer" ? true : userRoles.includes(role);
+    const effective: AppRole = userRoles.includes("admin")
+      ? "admin"
+      : userRoles.includes("staff") ? "staff" : "customer";
     setBusy(false);
-
-    if (!has) {
-      toast.error(`This account does not have ${role} access.`);
-      await supabase.auth.signOut();
-      return;
-    }
-    toast.success("Signed in");
-    nav({ to: routeFor(role) });
+    toast.success(`Signed in as ${effective}`);
+    nav({ to: routeFor(effective) });
   };
 
   return (
     <form onSubmit={submit} className="space-y-4 mt-4">
-      <div className="space-y-2">
-        <Label>Sign in as</Label>
-        <RoleSelect value={role} onChange={setRole} />
-      </div>
       <div className="space-y-2">
         <Label htmlFor="si-email">Email</Label>
         <Input id="si-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
@@ -131,6 +123,7 @@ function SignInForm() {
         <Label htmlFor="si-pwd">Password</Label>
         <Input id="si-pwd" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
       </div>
+      <p className="text-xs text-muted-foreground">You'll be taken to the dashboard that matches this account's role.</p>
       <Button type="submit" className="w-full" disabled={busy}>{busy ? "Signing in…" : "Sign in"}</Button>
     </form>
   );
