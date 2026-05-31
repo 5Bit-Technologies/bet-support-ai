@@ -16,7 +16,7 @@ function StaffHome() {
   const [stats, setStats] = useState({ open: 0, urgent: 0, inProgress: 0, resolvedToday: 0 });
 
   const load = async () => {
-    const cats = STAFF_CATEGORIES as unknown as string[];
+    const cats = STAFF_CATEGORIES as any;
     const [open, urgent, inProg, resolved] = await Promise.all([
       supabase.from("tickets").select("id", { count: "exact", head: true }).in("category", cats).in("status", ["open", "pending"]),
       supabase.from("tickets").select("id", { count: "exact", head: true }).in("category", cats).eq("priority", "urgent").not("status", "in", "(resolved,closed)"),
