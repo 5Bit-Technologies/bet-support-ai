@@ -39,7 +39,7 @@ function StaffHome() {
         <KPI icon={CheckCircle2} label="Resolved (24h)" value={stats.resolvedToday} tone="text-emerald-500" />
       </div>
 
-      <TicketsTable basePath="/staff/ticket" />
+      <TicketsTable basePath="/staff/ticket" audience="staff" />
     </div>
   );
 }
