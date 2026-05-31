@@ -4,6 +4,7 @@ import { AppShell, RequireAuth } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TicketsTable } from "@/components/TicketsTable";
+import { STAFF_CATEGORIES } from "@/lib/ticket-utils";
 import { Inbox, AlertTriangle, Clock, CheckCircle2 } from "lucide-react";
 
 export const Route = createFileRoute("/staff/")({
@@ -15,11 +16,12 @@ function StaffHome() {
   const [stats, setStats] = useState({ open: 0, urgent: 0, inProgress: 0, resolvedToday: 0 });
 
   const load = async () => {
+    const cats = STAFF_CATEGORIES as any;
     const [open, urgent, inProg, resolved] = await Promise.all([
-      supabase.from("tickets").select("id", { count: "exact", head: true }).in("status", ["open", "pending"]),
-      supabase.from("tickets").select("id", { count: "exact", head: true }).eq("priority", "urgent").not("status", "in", "(resolved,closed)"),
-      supabase.from("tickets").select("id", { count: "exact", head: true }).eq("status", "in_progress"),
-      supabase.from("tickets").select("id", { count: "exact", head: true }).eq("status", "resolved").gte("resolved_at", new Date(Date.now() - 24 * 3600 * 1000).toISOString()),
+      supabase.from("tickets").select("id", { count: "exact", head: true }).in("category", cats).in("status", ["open", "pending"]),
+      supabase.from("tickets").select("id", { count: "exact", head: true }).in("category", cats).eq("priority", "urgent").not("status", "in", "(resolved,closed)"),
+      supabase.from("tickets").select("id", { count: "exact", head: true }).in("category", cats).eq("status", "in_progress"),
+      supabase.from("tickets").select("id", { count: "exact", head: true }).in("category", cats).eq("status", "resolved").gte("resolved_at", new Date(Date.now() - 24 * 3600 * 1000).toISOString()),
     ]);
     setStats({ open: open.count ?? 0, urgent: urgent.count ?? 0, inProgress: inProg.count ?? 0, resolvedToday: resolved.count ?? 0 });
   };
@@ -37,7 +39,7 @@ function StaffHome() {
         <KPI icon={CheckCircle2} label="Resolved (24h)" value={stats.resolvedToday} tone="text-emerald-500" />
       </div>
 
-      <TicketsTable basePath="/staff/ticket" />
+      <TicketsTable basePath="/staff/ticket" audience="staff" />
     </div>
   );
 }
