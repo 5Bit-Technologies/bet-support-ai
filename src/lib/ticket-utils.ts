@@ -29,6 +29,9 @@ export const CATEGORIES = [
   { value: "other", label: "Other" },
 ] as const;
 
+export const STAFF_CATEGORIES = ["hr", "it", "finance", "facilities", "internal_security"] as const;
+export const CUSTOMER_CATEGORIES = ["withdrawals", "deposits", "betting", "verification", "login", "promotions"] as const;
+
 export const STATUSES = ["open", "pending", "in_progress", "escalated", "resolved", "closed"] as const;
 export const PRIORITIES = ["low", "medium", "high", "urgent"] as const;
 
