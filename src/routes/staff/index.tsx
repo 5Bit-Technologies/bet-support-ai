@@ -4,6 +4,7 @@ import { AppShell, RequireAuth } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TicketsTable } from "@/components/TicketsTable";
+import { STAFF_CATEGORIES } from "@/lib/ticket-utils";
 import { Inbox, AlertTriangle, Clock, CheckCircle2 } from "lucide-react";
 
 export const Route = createFileRoute("/staff/")({
