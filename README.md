@@ -23,6 +23,14 @@ Tickets are submitted in free-form text — an **AI classifier** assigns categor
 
 ---
 
+# 🔗 Live Demo
+
+The live demo of the application can be accessed here
+
+https://bet-support-ai.lovable.app
+
+---
+
 ## Key features
 
 - 🎨 **Three visually-distinct dashboards** — instantly obvious which role you're in.
