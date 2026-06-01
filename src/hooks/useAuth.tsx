@@ -8,6 +8,7 @@ interface AuthCtx {
   session: Session | null;
   roles: AppRole[];
   loading: boolean;
+  rolesLoaded: boolean;
   isStaff: boolean;
   isAdmin: boolean;
   signOut: () => Promise<void>;
@@ -21,27 +22,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [loading, setLoading] = useState(true);
+  const [rolesLoaded, setRolesLoaded] = useState(false);
 
   useEffect(() => {
     let unsub: (() => void) | undefined;
     let cancelled = false;
 
     (async () => {
-      // Dynamic import keeps the browser-only Supabase client out of SSR
       const { supabase } = await import("@/integrations/supabase/client");
       if (cancelled) return;
       setClient(supabase);
 
       const fetchRoles = async (uid: string) => {
         const { data } = await supabase.from("user_roles").select("role").eq("user_id", uid);
+        if (cancelled) return;
         setRoles((data ?? []).map((r) => r.role as AppRole));
+        setRolesLoaded(true);
       };
 
       const { data: sub } = supabase.auth.onAuthStateChange((_evt, s) => {
         setSession(s);
         setUser(s?.user ?? null);
-        if (s?.user) setTimeout(() => fetchRoles(s.user.id), 0);
-        else setRoles([]);
+        if (s?.user) {
+          setRolesLoaded(false);
+          setTimeout(() => fetchRoles(s.user.id), 0);
+        } else {
+          setRoles([]);
+          setRolesLoaded(true);
+        }
       });
       unsub = () => sub.subscription.unsubscribe();
 
@@ -49,6 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(data.session);
       setUser(data.session?.user ?? null);
       if (data.session?.user) await fetchRoles(data.session.user.id);
+      else setRolesLoaded(true);
       setLoading(false);
     })();
 
@@ -61,13 +70,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = async () => {
     await client?.auth.signOut();
     setRoles([]);
+    setRolesLoaded(true);
   };
 
   const isAdmin = roles.includes("admin");
   const isStaff = isAdmin || roles.includes("staff");
 
   return (
-    <Ctx.Provider value={{ user, session, roles, loading, isStaff, isAdmin, signOut }}>
+    <Ctx.Provider value={{ user, session, roles, loading, rolesLoaded, isStaff, isAdmin, signOut }}>
       {children}
     </Ctx.Provider>
   );
