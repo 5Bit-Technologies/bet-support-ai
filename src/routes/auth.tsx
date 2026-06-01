@@ -26,14 +26,14 @@ function routeFor(role: AppRole) {
 }
 
 function AuthPage() {
-  const { user, loading, roles } = useAuth();
+  const { user, loading, roles, rolesLoaded } = useAuth();
   const nav = useNavigate();
   useEffect(() => {
-    if (!loading && user) {
+    if (!loading && user && rolesLoaded) {
       const target = roles.includes("admin") ? "/admin" : roles.includes("staff") ? "/staff" : "/portal";
       nav({ to: target });
     }
-  }, [user, loading, roles, nav]);
+  }, [user, loading, rolesLoaded, roles, nav]);
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2 bg-background">
