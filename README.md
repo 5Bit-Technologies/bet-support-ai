@@ -79,7 +79,7 @@ Schema changes live under `supabase/migrations/`. Auto-generated types are writt
 
 ### Sign-up access codes
 
-Staff and Admin signups require an access code validated by the `claim_signup_role` database function. Customers self-serve.
+Staff and Admin signups require an access code (HELIX-STAFF-2026 or HELIX-ADMIN-2026) validated by the `claim_signup_role` database function. Customers self-serve.
 
 ---
 
