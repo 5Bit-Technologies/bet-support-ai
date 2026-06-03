@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {
   Shield, LayoutDashboard, Ticket, Users, BarChart3, Inbox, LogOut, Plus,
-  UserRound, Headphones, ShieldCheck,
+  UserRound, Headphones, ShieldCheck, TrendingUp, FileText, Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -23,6 +23,8 @@ const staffNav: NavItem[] = [
 ];
 const adminNav: NavItem[] = [
   { to: "/admin", label: "Analytics", icon: BarChart3 },
+  { to: "/admin/staff-performance", label: "Staff performance", icon: TrendingUp },
+  { to: "/admin/reports", label: "Reports", icon: FileText },
   { to: "/admin/tickets", label: "All tickets", icon: Ticket },
   { to: "/admin/users", label: "Users", icon: Users },
 ];

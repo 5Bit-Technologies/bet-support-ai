@@ -41,6 +41,39 @@ export type Database = {
         }
         Relationships: []
       }
+      ticket_activity: {
+        Row: {
+          action: Database["public"]["Enums"]["ticket_action"]
+          actor_id: string | null
+          created_at: string
+          from_value: string | null
+          id: string
+          metadata: Json | null
+          ticket_id: string
+          to_value: string | null
+        }
+        Insert: {
+          action: Database["public"]["Enums"]["ticket_action"]
+          actor_id?: string | null
+          created_at?: string
+          from_value?: string | null
+          id?: string
+          metadata?: Json | null
+          ticket_id: string
+          to_value?: string | null
+        }
+        Update: {
+          action?: Database["public"]["Enums"]["ticket_action"]
+          actor_id?: string | null
+          created_at?: string
+          from_value?: string | null
+          id?: string
+          metadata?: Json | null
+          ticket_id?: string
+          to_value?: string | null
+        }
+        Relationships: []
+      }
       ticket_attachments: {
         Row: {
           created_at: string
@@ -137,8 +170,10 @@ export type Database = {
           ai_confidence: number | null
           assigned_to: string | null
           category: Database["public"]["Enums"]["ticket_category"]
+          closed_at: string | null
           created_at: string
           description: string
+          first_response_at: string | null
           id: string
           priority: Database["public"]["Enums"]["ticket_priority"]
           resolved_at: string | null
@@ -155,8 +190,10 @@ export type Database = {
           ai_confidence?: number | null
           assigned_to?: string | null
           category?: Database["public"]["Enums"]["ticket_category"]
+          closed_at?: string | null
           created_at?: string
           description: string
+          first_response_at?: string | null
           id?: string
           priority?: Database["public"]["Enums"]["ticket_priority"]
           resolved_at?: string | null
@@ -173,8 +210,10 @@ export type Database = {
           ai_confidence?: number | null
           assigned_to?: string | null
           category?: Database["public"]["Enums"]["ticket_category"]
+          closed_at?: string | null
           created_at?: string
           description?: string
+          first_response_at?: string | null
           id?: string
           priority?: Database["public"]["Enums"]["ticket_priority"]
           resolved_at?: string | null
@@ -244,6 +283,18 @@ export type Database = {
     }
     Enums: {
       app_role: "customer" | "staff" | "admin"
+      ticket_action:
+        | "created"
+        | "status_changed"
+        | "priority_changed"
+        | "category_changed"
+        | "assigned"
+        | "unassigned"
+        | "escalated"
+        | "resolved"
+        | "reopened"
+        | "closed"
+        | "message_added"
       ticket_category:
         | "withdrawals"
         | "deposits"
@@ -394,6 +445,19 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["customer", "staff", "admin"],
+      ticket_action: [
+        "created",
+        "status_changed",
+        "priority_changed",
+        "category_changed",
+        "assigned",
+        "unassigned",
+        "escalated",
+        "resolved",
+        "reopened",
+        "closed",
+        "message_added",
+      ],
       ticket_category: [
         "withdrawals",
         "deposits",
