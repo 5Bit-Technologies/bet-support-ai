@@ -19,6 +19,8 @@ import { Route as StaffNewRouteImport } from './routes/staff/new'
 import { Route as PortalNewRouteImport } from './routes/portal/new'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
 import { Route as AdminTicketsRouteImport } from './routes/admin/tickets'
+import { Route as AdminStaffPerformanceRouteImport } from './routes/admin/staff-performance'
+import { Route as AdminReportsRouteImport } from './routes/admin/reports'
 import { Route as StaffTicketIdRouteImport } from './routes/staff/ticket.$id'
 import { Route as PortalTicketIdRouteImport } from './routes/portal/ticket.$id'
 import { Route as AdminTicketIdRouteImport } from './routes/admin/ticket.$id'
@@ -73,6 +75,16 @@ const AdminTicketsRoute = AdminTicketsRouteImport.update({
   path: '/admin/tickets',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminStaffPerformanceRoute = AdminStaffPerformanceRouteImport.update({
+  id: '/admin/staff-performance',
+  path: '/admin/staff-performance',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminReportsRoute = AdminReportsRouteImport.update({
+  id: '/admin/reports',
+  path: '/admin/reports',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StaffTicketIdRoute = StaffTicketIdRouteImport.update({
   id: '/staff/ticket/$id',
   path: '/staff/ticket/$id',
@@ -92,6 +104,8 @@ const AdminTicketIdRoute = AdminTicketIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/admin/reports': typeof AdminReportsRoute
+  '/admin/staff-performance': typeof AdminStaffPerformanceRoute
   '/admin/tickets': typeof AdminTicketsRoute
   '/admin/users': typeof AdminUsersRoute
   '/portal/new': typeof PortalNewRoute
@@ -107,6 +121,8 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/admin/reports': typeof AdminReportsRoute
+  '/admin/staff-performance': typeof AdminStaffPerformanceRoute
   '/admin/tickets': typeof AdminTicketsRoute
   '/admin/users': typeof AdminUsersRoute
   '/portal/new': typeof PortalNewRoute
@@ -123,6 +139,8 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/admin/reports': typeof AdminReportsRoute
+  '/admin/staff-performance': typeof AdminStaffPerformanceRoute
   '/admin/tickets': typeof AdminTicketsRoute
   '/admin/users': typeof AdminUsersRoute
   '/portal/new': typeof PortalNewRoute
@@ -140,6 +158,8 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/admin/reports'
+    | '/admin/staff-performance'
     | '/admin/tickets'
     | '/admin/users'
     | '/portal/new'
@@ -155,6 +175,8 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/admin/reports'
+    | '/admin/staff-performance'
     | '/admin/tickets'
     | '/admin/users'
     | '/portal/new'
@@ -170,6 +192,8 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/auth'
+    | '/admin/reports'
+    | '/admin/staff-performance'
     | '/admin/tickets'
     | '/admin/users'
     | '/portal/new'
@@ -186,6 +210,8 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
+  AdminReportsRoute: typeof AdminReportsRoute
+  AdminStaffPerformanceRoute: typeof AdminStaffPerformanceRoute
   AdminTicketsRoute: typeof AdminTicketsRoute
   AdminUsersRoute: typeof AdminUsersRoute
   PortalNewRoute: typeof PortalNewRoute
@@ -271,6 +297,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminTicketsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/staff-performance': {
+      id: '/admin/staff-performance'
+      path: '/admin/staff-performance'
+      fullPath: '/admin/staff-performance'
+      preLoaderRoute: typeof AdminStaffPerformanceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/reports': {
+      id: '/admin/reports'
+      path: '/admin/reports'
+      fullPath: '/admin/reports'
+      preLoaderRoute: typeof AdminReportsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/staff/ticket/$id': {
       id: '/staff/ticket/$id'
       path: '/staff/ticket/$id'
@@ -298,6 +338,8 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
+  AdminReportsRoute: AdminReportsRoute,
+  AdminStaffPerformanceRoute: AdminStaffPerformanceRoute,
   AdminTicketsRoute: AdminTicketsRoute,
   AdminUsersRoute: AdminUsersRoute,
   PortalNewRoute: PortalNewRoute,
