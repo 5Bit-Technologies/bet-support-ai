@@ -15,6 +15,7 @@ import { STATUSES, PRIORITIES, CATEGORIES } from "@/lib/ticket-utils";
 import { toast } from "sonner";
 import { ArrowLeft, Sparkles, Lock, Paperclip, Trash2, ShieldCheck } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { TicketTimeline } from "@/components/TicketTimeline";
 
 
 export const Route = createFileRoute("/portal/ticket/$id")({
@@ -238,8 +239,12 @@ export function TicketDetail({ backTo }: { backTo: string }) {
               <Row label="Submitted by">{ticket.profile?.full_name ?? ticket.profile?.email ?? "—"}</Row>
               <Row label="Created">{formatDistanceToNow(new Date(ticket.created_at), { addSuffix: true })}</Row>
               <Row label="Updated">{formatDistanceToNow(new Date(ticket.updated_at), { addSuffix: true })}</Row>
+              {ticket.first_response_at && <Row label="First response">{formatDistanceToNow(new Date(ticket.first_response_at), { addSuffix: true })}</Row>}
+              {ticket.resolved_at && <Row label="Resolved">{formatDistanceToNow(new Date(ticket.resolved_at), { addSuffix: true })}</Row>}
             </CardContent>
           </Card>
+
+          {isStaff && <TicketTimeline ticketId={id} />}
         </div>
       </div>
     </div>
