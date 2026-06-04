@@ -56,6 +56,7 @@ export function NewTicket({ audience }: { audience: "customer" | "staff" }) {
         priority: ai?.priority ?? "medium",
         sentiment: ai?.sentiment ?? null,
         suggested_department: ai?.suggested_department ?? null,
+        main_category: ai?.main_category ?? (audience === "staff" ? "Internal Staff" : "Online Gambling"),
         ai_classification: ai ?? null,
         ai_confidence: ai?.confidence ?? null,
       };
@@ -72,6 +73,22 @@ export function NewTicket({ audience }: { audience: "customer" | "staff" }) {
             file_name: file.name, file_size: file.size, mime_type: file.type,
           });
         }
+      }
+
+      // Fire-and-forget AI response generation. Failure must not block ticket creation.
+      if (ticket && ai) {
+        supabase.functions.invoke("generate-ai-response", {
+          body: {
+            subject: parsed.data.subject, description: parsed.data.description,
+            main_category: ai.main_category, category: ai.category, priority: ai.priority,
+            sentiment: ai.sentiment, suggested_department: ai.suggested_department, audience,
+          },
+        }).then(({ data, error: gErr }) => {
+          if (gErr || !data?.response) return;
+          supabase.from("tickets").update({
+            ai_response: data.response, ai_response_tone: data.tone, ai_response_edited: false,
+          }).eq("id", ticket.id);
+        });
       }
 
       toast.success("Ticket submitted. AI has triaged and routed it.");
