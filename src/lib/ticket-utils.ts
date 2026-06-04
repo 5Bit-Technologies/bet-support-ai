@@ -14,27 +14,53 @@ export const PRIORITY_COLORS: Record<string, string> = {
   urgent: "bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30",
 };
 
+/** Main category buckets used for analytics + AI routing. */
+export const MAIN_CATEGORIES = ["Online Gambling", "Physical Casino", "Internal Staff"] as const;
+export type MainCategory = (typeof MAIN_CATEGORIES)[number];
+
 export const CATEGORIES = [
-  { value: "withdrawals", label: "Withdrawals" },
-  { value: "deposits", label: "Deposits" },
-  { value: "betting", label: "Betting issues" },
-  { value: "verification", label: "Account verification" },
-  { value: "login", label: "Login problems" },
-  { value: "promotions", label: "Promotions / bonuses" },
-  { value: "hr", label: "HR" },
-  { value: "it", label: "IT" },
-  { value: "finance", label: "Finance" },
-  { value: "facilities", label: "Facilities" },
-  { value: "internal_security", label: "Internal security" },
-  { value: "other", label: "Other" },
+  // Online Gambling
+  { value: "withdrawals", label: "Withdrawals", main: "Online Gambling" as MainCategory },
+  { value: "deposits", label: "Deposits", main: "Online Gambling" as MainCategory },
+  { value: "betting", label: "Betting issues", main: "Online Gambling" as MainCategory },
+  { value: "verification", label: "Account verification", main: "Online Gambling" as MainCategory },
+  { value: "login", label: "Login problems", main: "Online Gambling" as MainCategory },
+  { value: "promotions", label: "Promotions / bonuses", main: "Online Gambling" as MainCategory },
+  { value: "responsible_gambling", label: "Responsible gambling support", main: "Online Gambling" as MainCategory },
+  // Physical Casino
+  { value: "security_incident", label: "Security incident", main: "Physical Casino" as MainCategory },
+  { value: "theft", label: "Theft report", main: "Physical Casino" as MainCategory },
+  { value: "lost_found", label: "Lost & found", main: "Physical Casino" as MainCategory },
+  { value: "customer_complaint", label: "Customer complaint", main: "Physical Casino" as MainCategory },
+  { value: "property_damage", label: "Property damage", main: "Physical Casino" as MainCategory },
+  { value: "facility_issue", label: "Facility issue", main: "Physical Casino" as MainCategory },
+  { value: "venue_services", label: "Venue services", main: "Physical Casino" as MainCategory },
+  // Internal Staff
+  { value: "it", label: "IT", main: "Internal Staff" as MainCategory },
+  { value: "hr", label: "HR", main: "Internal Staff" as MainCategory },
+  { value: "finance", label: "Finance", main: "Internal Staff" as MainCategory },
+  { value: "operations", label: "Operations", main: "Internal Staff" as MainCategory },
+  { value: "internal_security", label: "Internal security", main: "Internal Staff" as MainCategory },
+  { value: "maintenance", label: "Maintenance", main: "Internal Staff" as MainCategory },
+  { value: "facilities", label: "Facilities", main: "Internal Staff" as MainCategory },
+  { value: "other", label: "Other", main: "Internal Staff" as MainCategory },
 ] as const;
 
-export const STAFF_CATEGORIES = ["hr", "it", "finance", "facilities", "internal_security"] as const;
-export const CUSTOMER_CATEGORIES = ["withdrawals", "deposits", "betting", "verification", "login", "promotions"] as const;
+export const STAFF_CATEGORIES = ["hr", "it", "finance", "operations", "internal_security", "maintenance", "facilities"] as const;
+export const CUSTOMER_CATEGORIES = [
+  "withdrawals", "deposits", "betting", "verification", "login", "promotions", "responsible_gambling",
+  "security_incident", "theft", "lost_found", "customer_complaint", "property_damage", "facility_issue", "venue_services",
+] as const;
 
 export const STATUSES = ["open", "pending", "in_progress", "escalated", "resolved", "closed"] as const;
 export const PRIORITIES = ["low", "medium", "high", "urgent"] as const;
+export const RESPONSE_TONES = ["formal", "friendly", "urgent"] as const;
+export type ResponseTone = (typeof RESPONSE_TONES)[number];
 
 export function formatStatus(s: string) {
   return s.replace("_", " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+export function mainCategoryFor(category: string): MainCategory {
+  return CATEGORIES.find((c) => c.value === category)?.main ?? "Internal Staff";
 }
