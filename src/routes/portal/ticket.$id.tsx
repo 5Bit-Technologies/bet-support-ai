@@ -11,9 +11,9 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { StatusBadge, PriorityBadge, SentimentBadge } from "@/components/TicketBadges";
-import { STATUSES, PRIORITIES, CATEGORIES } from "@/lib/ticket-utils";
+import { STATUSES, PRIORITIES, CATEGORIES, RESPONSE_TONES, type ResponseTone } from "@/lib/ticket-utils";
 import { toast } from "sonner";
-import { ArrowLeft, Sparkles, Lock, Paperclip, Trash2, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Sparkles, Lock, Paperclip, Trash2, ShieldCheck, RefreshCw, Send, Save } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { TicketTimeline } from "@/components/TicketTimeline";
 
