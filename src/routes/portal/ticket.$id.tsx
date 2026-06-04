@@ -189,12 +189,12 @@ export function TicketDetail({ backTo }: { backTo: string }) {
           </Card>
 
           {isStaff && (
-            <AIResponsePanel ticket={ticket} isAdmin={isAdmin} onSent={async (text) => {
+            <AIResponsePanel ticket={ticket} isAdmin={isAdmin} onSent={async (text: string) => {
               if (!user) return;
               const { error } = await supabase.from("ticket_messages").insert({
                 ticket_id: id, user_id: user.id, message: text, is_internal_note: false,
               });
-              if (error) return toast.error(error.message);
+              if (error) { toast.error(error.message); return; }
               toast.success("AI response sent as reply");
             }} />
           )}
