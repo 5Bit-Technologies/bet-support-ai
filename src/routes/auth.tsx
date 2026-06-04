@@ -93,6 +93,7 @@ function SignInForm() {
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<AppRole>("customer");
   const [busy, setBusy] = useState(false);
+  const [showForgot, setShowForgot] = useState(false);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -103,7 +104,6 @@ function SignInForm() {
     const { data, error } = await supabase.auth.signInWithPassword({ email: ev.data, password: pv.data });
     if (error || !data.user) { setBusy(false); return toast.error(error?.message ?? "Sign-in failed"); }
 
-    // Verify the selected role matches the account's actual role.
     const { data: rows } = await supabase.from("user_roles").select("role").eq("user_id", data.user.id);
     const userRoles = (rows ?? []).map((r) => r.role as AppRole);
     const effective: AppRole = userRoles.includes("admin")
@@ -121,6 +121,19 @@ function SignInForm() {
     nav({ to: routeFor(effective) });
   };
 
+  const sendReset = async () => {
+    const ev = emailSchema.safeParse(email);
+    if (!ev.success) return toast.error("Enter your email above first, then click Forgot password.");
+    setBusy(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(ev.data, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setBusy(false);
+    if (error) return toast.error(error.message);
+    toast.success("If that email exists, a reset link is on its way.");
+    setShowForgot(false);
+  };
+
   return (
     <form onSubmit={submit} className="space-y-4 mt-4">
       <div className="space-y-2">
@@ -132,9 +145,22 @@ function SignInForm() {
         <Input id="si-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="si-pwd">Password</Label>
+        <div className="flex items-center justify-between">
+          <Label htmlFor="si-pwd">Password</Label>
+          <button type="button" onClick={() => setShowForgot((s) => !s)} className="text-xs text-primary hover:underline">
+            Forgot password?
+          </button>
+        </div>
         <Input id="si-pwd" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
       </div>
+      {showForgot && (
+        <div className="rounded-md border border-border bg-muted/40 p-3 text-xs space-y-2">
+          <p>We'll email a reset link to the address above. Make sure it's correct, then click Send.</p>
+          <Button type="button" size="sm" variant="secondary" onClick={sendReset} disabled={busy}>
+            {busy ? "Sending…" : "Send reset link"}
+          </Button>
+        </div>
+      )}
       <p className="text-xs text-muted-foreground">Your selection must match the role this email was registered with.</p>
       <Button type="submit" className="w-full" disabled={busy}>{busy ? "Signing in…" : "Sign in"}</Button>
     </form>

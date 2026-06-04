@@ -168,6 +168,9 @@ export type Database = {
         Row: {
           ai_classification: Json | null
           ai_confidence: number | null
+          ai_response: string | null
+          ai_response_edited: boolean
+          ai_response_tone: string | null
           assigned_to: string | null
           category: Database["public"]["Enums"]["ticket_category"]
           closed_at: string | null
@@ -175,6 +178,7 @@ export type Database = {
           description: string
           first_response_at: string | null
           id: string
+          main_category: string | null
           priority: Database["public"]["Enums"]["ticket_priority"]
           resolved_at: string | null
           sentiment: Database["public"]["Enums"]["ticket_sentiment"] | null
@@ -188,6 +192,9 @@ export type Database = {
         Insert: {
           ai_classification?: Json | null
           ai_confidence?: number | null
+          ai_response?: string | null
+          ai_response_edited?: boolean
+          ai_response_tone?: string | null
           assigned_to?: string | null
           category?: Database["public"]["Enums"]["ticket_category"]
           closed_at?: string | null
@@ -195,6 +202,7 @@ export type Database = {
           description: string
           first_response_at?: string | null
           id?: string
+          main_category?: string | null
           priority?: Database["public"]["Enums"]["ticket_priority"]
           resolved_at?: string | null
           sentiment?: Database["public"]["Enums"]["ticket_sentiment"] | null
@@ -208,6 +216,9 @@ export type Database = {
         Update: {
           ai_classification?: Json | null
           ai_confidence?: number | null
+          ai_response?: string | null
+          ai_response_edited?: boolean
+          ai_response_tone?: string | null
           assigned_to?: string | null
           category?: Database["public"]["Enums"]["ticket_category"]
           closed_at?: string | null
@@ -215,6 +226,7 @@ export type Database = {
           description?: string
           first_response_at?: string | null
           id?: string
+          main_category?: string | null
           priority?: Database["public"]["Enums"]["ticket_priority"]
           resolved_at?: string | null
           sentiment?: Database["public"]["Enums"]["ticket_sentiment"] | null
@@ -308,6 +320,16 @@ export type Database = {
         | "finance"
         | "facilities"
         | "internal_security"
+        | "responsible_gambling"
+        | "security_incident"
+        | "theft"
+        | "lost_found"
+        | "customer_complaint"
+        | "property_damage"
+        | "facility_issue"
+        | "venue_services"
+        | "operations"
+        | "maintenance"
       ticket_priority: "low" | "medium" | "high" | "urgent"
       ticket_sentiment: "positive" | "neutral" | "negative" | "frustrated"
       ticket_status:
@@ -471,6 +493,16 @@ export const Constants = {
         "finance",
         "facilities",
         "internal_security",
+        "responsible_gambling",
+        "security_incident",
+        "theft",
+        "lost_found",
+        "customer_complaint",
+        "property_damage",
+        "facility_issue",
+        "venue_services",
+        "operations",
+        "maintenance",
       ],
       ticket_priority: ["low", "medium", "high", "urgent"],
       ticket_sentiment: ["positive", "neutral", "negative", "frustrated"],
