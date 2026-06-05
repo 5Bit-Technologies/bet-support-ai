@@ -11,9 +11,9 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { StatusBadge, PriorityBadge, SentimentBadge } from "@/components/TicketBadges";
-import { STATUSES, PRIORITIES, CATEGORIES, RESPONSE_TONES, type ResponseTone } from "@/lib/ticket-utils";
+import { STATUSES, PRIORITIES, CATEGORIES } from "@/lib/ticket-utils";
 import { toast } from "sonner";
-import { ArrowLeft, Sparkles, Lock, Paperclip, Trash2, ShieldCheck, RefreshCw, Send, Save } from "lucide-react";
+import { ArrowLeft, Sparkles, Lock, Paperclip, Trash2, ShieldCheck } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { TicketTimeline } from "@/components/TicketTimeline";
 
@@ -282,99 +282,5 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
       <span className="text-xs text-muted-foreground">{label}</span>
       <span className="text-sm">{children}</span>
     </div>
-  );
-}
-
-function AIResponsePanel({
-  ticket, isAdmin, onSent,
-}: { ticket: any; isAdmin: boolean; onSent: (text: string) => Promise<void> }) {
-  const [draft, setDraft] = useState<string>(ticket.ai_response ?? "");
-  const [tone, setTone] = useState<ResponseTone | "auto">((ticket.ai_response_tone as ResponseTone) ?? "auto");
-  const [busy, setBusy] = useState(false);
-
-  // Keep draft in sync if the ticket payload refreshes (e.g. async first-generation arrives).
-  useEffect(() => {
-    if (!ticket.ai_response_edited) setDraft(ticket.ai_response ?? "");
-    if (ticket.ai_response_tone) setTone(ticket.ai_response_tone as ResponseTone);
-  }, [ticket.ai_response, ticket.ai_response_tone, ticket.ai_response_edited]);
-
-  const regenerate = async () => {
-    setBusy(true);
-    const { data, error } = await supabase.functions.invoke("generate-ai-response", {
-      body: {
-        subject: ticket.subject, description: ticket.description,
-        main_category: ticket.main_category, category: ticket.category,
-        priority: ticket.priority, sentiment: ticket.sentiment,
-        suggested_department: ticket.suggested_department, tone,
-      },
-    });
-    setBusy(false);
-    if (error || !data?.response) return toast.error(error?.message ?? "Could not generate response");
-    setDraft(data.response);
-    await supabase.from("tickets").update({
-      ai_response: data.response, ai_response_tone: data.tone, ai_response_edited: false,
-    }).eq("id", ticket.id);
-    toast.success("Regenerated");
-  };
-
-  const saveEdit = async () => {
-    setBusy(true);
-    const { error } = await supabase.from("tickets").update({
-      ai_response: draft, ai_response_edited: true,
-    }).eq("id", ticket.id);
-    setBusy(false);
-    if (error) return toast.error(error.message);
-    toast.success("Saved");
-  };
-
-  const sendAsReply = async () => {
-    if (!draft.trim()) return toast.error("Nothing to send");
-    setBusy(true);
-    await onSent(draft.trim());
-    setBusy(false);
-  };
-
-  return (
-    <Card className="border-primary/30">
-      <CardHeader>
-        <CardTitle className="text-sm flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-primary" /> AI suggested response
-          {ticket.ai_response_edited && <span className="text-[10px] uppercase tracking-wide text-amber-600 dark:text-amber-400">edited</span>}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        {!ticket.ai_response && !draft ? (
-          <p className="text-xs text-muted-foreground">No suggestion yet. Click Regenerate to draft one.</p>
-        ) : null}
-        {isAdmin ? (
-          <Textarea rows={7} value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="AI draft will appear here…" />
-        ) : (
-          <p className="text-sm whitespace-pre-wrap rounded-md border border-border bg-muted/30 p-3 min-h-[80px]">{draft || "—"}</p>
-        )}
-        <div className="flex items-center gap-2">
-          <Label className="text-xs">Tone</Label>
-          <Select value={tone} onValueChange={(v) => setTone(v as ResponseTone | "auto")}>
-            <SelectTrigger className="h-8 w-[130px] text-xs"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="auto">Auto</SelectItem>
-              {RESPONSE_TONES.map((t) => <SelectItem key={t} value={t} className="capitalize">{t}</SelectItem>)}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Button size="sm" variant="secondary" onClick={regenerate} disabled={busy}>
-            <RefreshCw className="h-3.5 w-3.5 mr-1" /> Regenerate
-          </Button>
-          {isAdmin && (
-            <Button size="sm" variant="outline" onClick={saveEdit} disabled={busy || !draft.trim()}>
-              <Save className="h-3.5 w-3.5 mr-1" /> Save edit
-            </Button>
-          )}
-          <Button size="sm" onClick={sendAsReply} disabled={busy || !draft.trim()}>
-            <Send className="h-3.5 w-3.5 mr-1" /> Send as reply
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
   );
 }
