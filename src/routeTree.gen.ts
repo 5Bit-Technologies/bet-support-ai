@@ -20,7 +20,6 @@ import { Route as StaffNewRouteImport } from './routes/staff/new'
 import { Route as PortalNewRouteImport } from './routes/portal/new'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
 import { Route as AdminTicketsRouteImport } from './routes/admin/tickets'
-import { Route as AdminStaffPerformanceRouteImport } from './routes/admin/staff-performance'
 import { Route as AdminReportsRouteImport } from './routes/admin/reports'
 import { Route as StaffTicketIdRouteImport } from './routes/staff/ticket.$id'
 import { Route as PortalTicketIdRouteImport } from './routes/portal/ticket.$id'
@@ -81,11 +80,6 @@ const AdminTicketsRoute = AdminTicketsRouteImport.update({
   path: '/admin/tickets',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminStaffPerformanceRoute = AdminStaffPerformanceRouteImport.update({
-  id: '/admin/staff-performance',
-  path: '/admin/staff-performance',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AdminReportsRoute = AdminReportsRouteImport.update({
   id: '/admin/reports',
   path: '/admin/reports',
@@ -112,7 +106,6 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/admin/reports': typeof AdminReportsRoute
-  '/admin/staff-performance': typeof AdminStaffPerformanceRoute
   '/admin/tickets': typeof AdminTicketsRoute
   '/admin/users': typeof AdminUsersRoute
   '/portal/new': typeof PortalNewRoute
@@ -130,7 +123,6 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/admin/reports': typeof AdminReportsRoute
-  '/admin/staff-performance': typeof AdminStaffPerformanceRoute
   '/admin/tickets': typeof AdminTicketsRoute
   '/admin/users': typeof AdminUsersRoute
   '/portal/new': typeof PortalNewRoute
@@ -149,7 +141,6 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/admin/reports': typeof AdminReportsRoute
-  '/admin/staff-performance': typeof AdminStaffPerformanceRoute
   '/admin/tickets': typeof AdminTicketsRoute
   '/admin/users': typeof AdminUsersRoute
   '/portal/new': typeof PortalNewRoute
@@ -169,7 +160,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/reset-password'
     | '/admin/reports'
-    | '/admin/staff-performance'
     | '/admin/tickets'
     | '/admin/users'
     | '/portal/new'
@@ -187,7 +177,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/reset-password'
     | '/admin/reports'
-    | '/admin/staff-performance'
     | '/admin/tickets'
     | '/admin/users'
     | '/portal/new'
@@ -205,7 +194,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/reset-password'
     | '/admin/reports'
-    | '/admin/staff-performance'
     | '/admin/tickets'
     | '/admin/users'
     | '/portal/new'
@@ -224,7 +212,6 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   AdminReportsRoute: typeof AdminReportsRoute
-  AdminStaffPerformanceRoute: typeof AdminStaffPerformanceRoute
   AdminTicketsRoute: typeof AdminTicketsRoute
   AdminUsersRoute: typeof AdminUsersRoute
   PortalNewRoute: typeof PortalNewRoute
@@ -317,13 +304,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminTicketsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/staff-performance': {
-      id: '/admin/staff-performance'
-      path: '/admin/staff-performance'
-      fullPath: '/admin/staff-performance'
-      preLoaderRoute: typeof AdminStaffPerformanceRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/admin/reports': {
       id: '/admin/reports'
       path: '/admin/reports'
@@ -360,7 +340,6 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   AdminReportsRoute: AdminReportsRoute,
-  AdminStaffPerformanceRoute: AdminStaffPerformanceRoute,
   AdminTicketsRoute: AdminTicketsRoute,
   AdminUsersRoute: AdminUsersRoute,
   PortalNewRoute: PortalNewRoute,
@@ -376,3 +355,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

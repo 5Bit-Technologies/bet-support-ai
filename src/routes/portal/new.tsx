@@ -75,19 +75,16 @@ export function NewTicket({ audience }: { audience: "customer" | "staff" }) {
         }
       }
 
-      // Fire-and-forget AI response generation. Failure must not block ticket creation.
+      // Fire-and-forget AI auto-response. The edge function picks the tone,
+      // posts the reply as a real message, and escalates to admin if needed.
       if (ticket && ai) {
         supabase.functions.invoke("generate-ai-response", {
           body: {
+            ticket_id: ticket.id, auto_insert: true,
             subject: parsed.data.subject, description: parsed.data.description,
             main_category: ai.main_category, category: ai.category, priority: ai.priority,
             sentiment: ai.sentiment, suggested_department: ai.suggested_department, audience,
           },
-        }).then(({ data, error: gErr }) => {
-          if (gErr || !data?.response) return;
-          supabase.from("tickets").update({
-            ai_response: data.response, ai_response_tone: data.tone, ai_response_edited: false,
-          }).eq("id", ticket.id);
         });
       }
 
