@@ -132,16 +132,37 @@ export function TicketDetail({ backTo }: { backTo: string }) {
             <CardHeader><CardTitle className="text-base">Conversation</CardTitle></CardHeader>
             <CardContent className="space-y-4">
               {messages.length === 0 && <p className="text-sm text-muted-foreground">No replies yet.</p>}
-              {messages.map((m) => (
-                <div key={m.id} className={`rounded-lg p-3 border ${m.is_internal_note ? "bg-amber-500/5 border-amber-500/30" : "bg-muted/40 border-border"}`}>
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
-                    <span className="font-medium text-foreground">{m.profile?.full_name ?? m.profile?.email ?? "User"}</span>
-                    {m.is_internal_note && <span className="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400"><Lock className="h-3 w-3" /> Internal note</span>}
-                    <span>· {formatDistanceToNow(new Date(m.created_at), { addSuffix: true })}</span>
+              {messages.map((m) => {
+                const aiLabel = "Helix Support (AI)";
+                const author = m.is_ai
+                  ? aiLabel
+                  : (m.profile?.full_name ?? m.profile?.email ?? "User");
+                return (
+                  <div
+                    key={m.id}
+                    className={`rounded-lg p-3 border ${
+                      m.is_internal_note
+                        ? "bg-amber-500/5 border-amber-500/30"
+                        : m.is_ai
+                          ? "bg-primary/5 border-primary/30"
+                          : "bg-muted/40 border-border"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
+                      <span className="font-medium text-foreground flex items-center gap-1.5">
+                        {m.is_ai && <Sparkles className="h-3 w-3 text-primary" />}
+                        {author}
+                      </span>
+                      {m.is_ai && (
+                        <span className="inline-flex items-center text-[10px] uppercase tracking-wide text-primary">Automated reply</span>
+                      )}
+                      {m.is_internal_note && <span className="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400"><Lock className="h-3 w-3" /> Internal note</span>}
+                      <span>· {formatDistanceToNow(new Date(m.created_at), { addSuffix: true })}</span>
+                    </div>
+                    <p className="text-sm whitespace-pre-wrap">{m.message}</p>
                   </div>
-                  <p className="text-sm whitespace-pre-wrap">{m.message}</p>
-                </div>
-              ))}
+                );
+              })}
 
               <Separator />
               <div className="space-y-2">
@@ -171,6 +192,9 @@ export function TicketDetail({ backTo }: { backTo: string }) {
                   <Row label="Sentiment"><SentimentBadge sentiment={ticket.sentiment} /></Row>
                   <Row label="Department">{ticket.suggested_department ?? "—"}</Row>
                   <Row label="Confidence">{ticket.ai_confidence ? `${Math.round(ticket.ai_confidence * 100)}%` : "—"}</Row>
+                  {ticket.ai_response_tone && (
+                    <Row label="AI reply tone"><span className="capitalize">{ticket.ai_response_tone}</span></Row>
+                  )}
                   {ticket.ai_classification?.summary && (
                     <div className="pt-2 border-t">
                       <p className="text-xs text-muted-foreground mb-1">Summary</p>
@@ -188,16 +212,6 @@ export function TicketDetail({ backTo }: { backTo: string }) {
             </CardContent>
           </Card>
 
-          {isStaff && (
-            <AIResponsePanel ticket={ticket} isAdmin={isAdmin} onSent={async (text: string) => {
-              if (!user) return;
-              const { error } = await supabase.from("ticket_messages").insert({
-                ticket_id: id, user_id: user.id, message: text, is_internal_note: false,
-              });
-              if (error) { toast.error(error.message); return; }
-              toast.success("AI response sent as reply");
-            }} />
-          )}
 
           {isStaff && (
             <Card>
