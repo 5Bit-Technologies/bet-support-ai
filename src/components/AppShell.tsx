@@ -15,18 +15,20 @@ interface NavItem { to: string; label: string; icon: any; }
 const customerNav: NavItem[] = [
   { to: "/portal", label: "My tickets", icon: Ticket },
   { to: "/portal/new", label: "New ticket", icon: Plus },
+  { to: "/account", label: "Account", icon: UserRound },
 ];
 const staffNav: NavItem[] = [
   { to: "/staff", label: "Inbox", icon: Inbox },
   { to: "/staff/tickets", label: "All tickets", icon: Ticket },
   { to: "/staff/new", label: "New internal ticket", icon: Plus },
+  { to: "/account", label: "Account", icon: UserRound },
 ];
 const adminNav: NavItem[] = [
   { to: "/admin", label: "Analytics", icon: BarChart3 },
-  { to: "/admin/staff-performance", label: "Staff performance", icon: TrendingUp },
   { to: "/admin/reports", label: "Reports", icon: FileText },
   { to: "/admin/tickets", label: "All tickets", icon: Ticket },
   { to: "/admin/users", label: "Users", icon: Users },
+  { to: "/account", label: "Account", icon: UserRound },
 ];
 
 type Area = "portal" | "staff" | "admin";

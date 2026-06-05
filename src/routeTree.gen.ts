@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AccountRouteImport } from './routes/account'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as StaffIndexRouteImport } from './routes/staff/index'
 import { Route as PortalIndexRouteImport } from './routes/portal/index'
@@ -20,7 +21,6 @@ import { Route as StaffNewRouteImport } from './routes/staff/new'
 import { Route as PortalNewRouteImport } from './routes/portal/new'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
 import { Route as AdminTicketsRouteImport } from './routes/admin/tickets'
-import { Route as AdminStaffPerformanceRouteImport } from './routes/admin/staff-performance'
 import { Route as AdminReportsRouteImport } from './routes/admin/reports'
 import { Route as StaffTicketIdRouteImport } from './routes/staff/ticket.$id'
 import { Route as PortalTicketIdRouteImport } from './routes/portal/ticket.$id'
@@ -34,6 +34,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountRoute = AccountRouteImport.update({
+  id: '/account',
+  path: '/account',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -81,11 +86,6 @@ const AdminTicketsRoute = AdminTicketsRouteImport.update({
   path: '/admin/tickets',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminStaffPerformanceRoute = AdminStaffPerformanceRouteImport.update({
-  id: '/admin/staff-performance',
-  path: '/admin/staff-performance',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AdminReportsRoute = AdminReportsRouteImport.update({
   id: '/admin/reports',
   path: '/admin/reports',
@@ -109,10 +109,10 @@ const AdminTicketIdRoute = AdminTicketIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/admin/reports': typeof AdminReportsRoute
-  '/admin/staff-performance': typeof AdminStaffPerformanceRoute
   '/admin/tickets': typeof AdminTicketsRoute
   '/admin/users': typeof AdminUsersRoute
   '/portal/new': typeof PortalNewRoute
@@ -127,10 +127,10 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/admin/reports': typeof AdminReportsRoute
-  '/admin/staff-performance': typeof AdminStaffPerformanceRoute
   '/admin/tickets': typeof AdminTicketsRoute
   '/admin/users': typeof AdminUsersRoute
   '/portal/new': typeof PortalNewRoute
@@ -146,10 +146,10 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/admin/reports': typeof AdminReportsRoute
-  '/admin/staff-performance': typeof AdminStaffPerformanceRoute
   '/admin/tickets': typeof AdminTicketsRoute
   '/admin/users': typeof AdminUsersRoute
   '/portal/new': typeof PortalNewRoute
@@ -166,10 +166,10 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/account'
     | '/auth'
     | '/reset-password'
     | '/admin/reports'
-    | '/admin/staff-performance'
     | '/admin/tickets'
     | '/admin/users'
     | '/portal/new'
@@ -184,10 +184,10 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/account'
     | '/auth'
     | '/reset-password'
     | '/admin/reports'
-    | '/admin/staff-performance'
     | '/admin/tickets'
     | '/admin/users'
     | '/portal/new'
@@ -202,10 +202,10 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/account'
     | '/auth'
     | '/reset-password'
     | '/admin/reports'
-    | '/admin/staff-performance'
     | '/admin/tickets'
     | '/admin/users'
     | '/portal/new'
@@ -221,10 +221,10 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AccountRoute: typeof AccountRoute
   AuthRoute: typeof AuthRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   AdminReportsRoute: typeof AdminReportsRoute
-  AdminStaffPerformanceRoute: typeof AdminStaffPerformanceRoute
   AdminTicketsRoute: typeof AdminTicketsRoute
   AdminUsersRoute: typeof AdminUsersRoute
   PortalNewRoute: typeof PortalNewRoute
@@ -252,6 +252,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account': {
+      id: '/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AccountRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -317,13 +324,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminTicketsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/staff-performance': {
-      id: '/admin/staff-performance'
-      path: '/admin/staff-performance'
-      fullPath: '/admin/staff-performance'
-      preLoaderRoute: typeof AdminStaffPerformanceRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/admin/reports': {
       id: '/admin/reports'
       path: '/admin/reports'
@@ -357,10 +357,10 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AccountRoute: AccountRoute,
   AuthRoute: AuthRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   AdminReportsRoute: AdminReportsRoute,
-  AdminStaffPerformanceRoute: AdminStaffPerformanceRoute,
   AdminTicketsRoute: AdminTicketsRoute,
   AdminUsersRoute: AdminUsersRoute,
   PortalNewRoute: PortalNewRoute,
