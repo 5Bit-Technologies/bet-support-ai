@@ -55,15 +55,40 @@ export function TicketDetail({ backTo }: { backTo: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
+  const isCustomerView = !isStaff;
+
   const sendReply = async () => {
     if (!reply.trim() || !user) return;
     setBusy(true);
+    const text = reply.trim();
     const { error } = await supabase.from("ticket_messages").insert({
-      ticket_id: id, user_id: user.id, message: reply.trim(), is_internal_note: isStaff ? internal : false,
+      ticket_id: id, user_id: user.id, message: text, is_internal_note: isStaff ? internal : false,
     });
-    setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) { setBusy(false); return toast.error(error.message); }
     setReply(""); setInternal(false);
+
+    // Chatbot: when the customer replies on their own ticket, the AI auto-responds
+    // and may escalate to an admin if sentiment/priority warrant it.
+    if (isCustomerView && ticket && user.id === ticket.user_id) {
+      try {
+        const { data: cls } = await supabase.functions.invoke("classify-ticket", {
+          body: { subject: ticket.subject, description: text, audience: "customer" },
+        });
+        await supabase.functions.invoke("generate-ai-response", {
+          body: {
+            ticket_id: id, auto_insert: true,
+            subject: ticket.subject, description: text,
+            main_category: cls?.main_category ?? ticket.main_category,
+            category: cls?.category ?? ticket.category,
+            priority: cls?.priority ?? ticket.priority,
+            sentiment: cls?.sentiment ?? ticket.sentiment,
+            suggested_department: cls?.suggested_department ?? ticket.suggested_department,
+            audience: "customer",
+          },
+        });
+      } catch (e) { console.warn("chatbot reply failed", e); }
+    }
+    setBusy(false);
   };
 
   const updateTicket = async (patch: any) => {
@@ -134,9 +159,12 @@ export function TicketDetail({ backTo }: { backTo: string }) {
               {messages.length === 0 && <p className="text-sm text-muted-foreground">No replies yet.</p>}
               {messages.map((m) => {
                 const aiLabel = "Helix Support (AI)";
+                const isStaffReply = !m.is_ai && ticket?.user_id && m.user_id !== ticket.user_id;
                 const author = m.is_ai
                   ? aiLabel
-                  : (m.profile?.full_name ?? m.profile?.email ?? "User");
+                  : isCustomerView && isStaffReply
+                    ? "Admin"
+                    : (m.profile?.full_name ?? m.profile?.email ?? "User");
                 return (
                   <div
                     key={m.id}
@@ -188,11 +216,11 @@ export function TicketDetail({ backTo }: { backTo: string }) {
               {ticket.ai_classification ? (
                 <>
                   <Row label="Category"><span className="capitalize">{ticket.category}</span></Row>
-                  <Row label="Priority"><PriorityBadge priority={ticket.priority} /></Row>
-                  <Row label="Sentiment"><SentimentBadge sentiment={ticket.sentiment} /></Row>
+                  {!isCustomerView && <Row label="Priority"><PriorityBadge priority={ticket.priority} /></Row>}
+                  {!isCustomerView && <Row label="Sentiment"><SentimentBadge sentiment={ticket.sentiment} /></Row>}
                   <Row label="Department">{ticket.suggested_department ?? "—"}</Row>
-                  <Row label="Confidence">{ticket.ai_confidence ? `${Math.round(ticket.ai_confidence * 100)}%` : "—"}</Row>
-                  {ticket.ai_response_tone && (
+                  {!isCustomerView && <Row label="Confidence">{ticket.ai_confidence ? `${Math.round(ticket.ai_confidence * 100)}%` : "—"}</Row>}
+                  {!isCustomerView && ticket.ai_response_tone && (
                     <Row label="AI reply tone"><span className="capitalize">{ticket.ai_response_tone}</span></Row>
                   )}
                   {ticket.ai_classification?.summary && (
