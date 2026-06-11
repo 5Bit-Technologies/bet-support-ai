@@ -22,7 +22,21 @@ export const Route = createFileRoute("/admin/")({
 });
 
 const COLOR_VARS = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(--chart-4)", "var(--chart-5)"];
-const COLORS = ["hsl(var(--chart-1))", "hsl(var(--chart-2))", "hsl(var(--chart-3))", "hsl(var(--chart-4))", "hsl(var(--chart-5))"];
+const COLORS = [
+  "#ef4444", // red
+  "#f97316", // orange
+  "#f59e0b", // amber
+  "#84cc16", // lime
+  "#10b981", // emerald
+  "#06b6d4", // cyan
+  "#3b82f6", // blue
+  "#8b5cf6", // violet
+  "#d946ef", // fuchsia
+  "#f43f5e", // rose
+  "#14b8a6", // teal
+  "#6366f1", // indigo
+];
+
 
 function AdminDash() {
   const [rangeKey, setRangeKey] = useState<keyof ReturnType<typeof rangePresets>>("30d");
