@@ -24,6 +24,8 @@ const PERIOD_DAYS: Record<Period, number> = { daily: 1, weekly: 7, monthly: 30 }
 
 function Reports() {
   const [period, setPeriod] = useState<Period>("weekly");
+  const [departmentFilter, setDepartmentFilter] = useState<string>("all");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [includeAI, setIncludeAI] = useState(true);
   const [report, setReport] = useState<ReportPayload | null>(null);
   const [busy, setBusy] = useState(false);
