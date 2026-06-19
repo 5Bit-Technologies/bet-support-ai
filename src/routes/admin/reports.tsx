@@ -9,7 +9,7 @@ import { FileDown, FileText, Loader2, Sparkles, Table as TableIcon } from "lucid
 import {
   computeMetrics, formatDuration, rangePresets, type TicketRow,
 } from "@/lib/analytics-utils";
-import { CATEGORIES } from "@/lib/ticket-utils";
+import { CATEGORIES, MAIN_CATEGORIES } from "@/lib/ticket-utils";
 import { downloadCSV, downloadPDF, type ReportPayload } from "@/lib/report-export";
 import { toast } from "sonner";
 
