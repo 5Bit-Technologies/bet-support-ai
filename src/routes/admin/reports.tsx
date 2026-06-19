@@ -49,10 +49,18 @@ function Reports() {
 
     if (error) { setBusy(false); toast.error(error.message); return; }
 
-    const list = (tickets ?? []) as TicketRow[];
+    const allRows = (tickets ?? []) as TicketRow[];
+    const allowedCategories = new Set(
+      CATEGORIES
+        .filter((c) => departmentFilter === "all" || c.main === departmentFilter)
+        .filter((c) => categoryFilter === "all" || c.value === categoryFilter)
+        .map((c) => c.value),
+    );
+    const list = allRows.filter((t) => allowedCategories.has(t.category));
     const metrics = computeMetrics(list);
 
     const categories = CATEGORIES
+      .filter((c) => allowedCategories.has(c.value))
       .map((c) => ({ name: c.label, value: list.filter((t) => t.category === c.value).length }))
       .filter((c) => c.value > 0)
       .sort((a, b) => b.value - a.value);
