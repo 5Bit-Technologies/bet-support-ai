@@ -9,7 +9,7 @@ import { FileDown, FileText, Loader2, Sparkles, Table as TableIcon } from "lucid
 import {
   computeMetrics, formatDuration, rangePresets, type TicketRow,
 } from "@/lib/analytics-utils";
-import { CATEGORIES } from "@/lib/ticket-utils";
+import { CATEGORIES, MAIN_CATEGORIES } from "@/lib/ticket-utils";
 import { downloadCSV, downloadPDF, type ReportPayload } from "@/lib/report-export";
 import { toast } from "sonner";
 
@@ -24,6 +24,8 @@ const PERIOD_DAYS: Record<Period, number> = { daily: 1, weekly: 7, monthly: 30 }
 
 function Reports() {
   const [period, setPeriod] = useState<Period>("weekly");
+  const [departmentFilter, setDepartmentFilter] = useState<string>("all");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [includeAI, setIncludeAI] = useState(true);
   const [report, setReport] = useState<ReportPayload | null>(null);
   const [busy, setBusy] = useState(false);
@@ -47,10 +49,18 @@ function Reports() {
 
     if (error) { setBusy(false); toast.error(error.message); return; }
 
-    const list = (tickets ?? []) as TicketRow[];
+    const allRows = (tickets ?? []) as TicketRow[];
+    const allowedCategories = new Set<string>(
+      CATEGORIES
+        .filter((c) => departmentFilter === "all" || c.main === departmentFilter)
+        .filter((c) => categoryFilter === "all" || c.value === categoryFilter)
+        .map((c) => c.value as string),
+    );
+    const list = allRows.filter((t) => allowedCategories.has(t.category));
     const metrics = computeMetrics(list);
 
     const categories = CATEGORIES
+      .filter((c) => allowedCategories.has(c.value))
       .map((c) => ({ name: c.label, value: list.filter((t) => t.category === c.value).length }))
       .filter((c) => c.value > 0)
       .sort((a, b) => b.value - a.value);
@@ -126,6 +136,24 @@ function Reports() {
                 <SelectItem value="daily">Daily (last 24h)</SelectItem>
                 <SelectItem value="weekly">Weekly (last 7d)</SelectItem>
                 <SelectItem value="monthly">Monthly (last 30d)</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={departmentFilter} onValueChange={(v) => { setDepartmentFilter(v); setCategoryFilter("all"); }}>
+              <SelectTrigger className="w-[200px]"><SelectValue placeholder="Department" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All departments</SelectItem>
+                {MAIN_CATEGORIES.map((m) => (
+                  <SelectItem key={m} value={m}>{m}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <SelectTrigger className="w-[200px]"><SelectValue placeholder="Category" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All categories</SelectItem>
+                {CATEGORIES.filter((c) => departmentFilter === "all" || c.main === departmentFilter).map((c) => (
+                  <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
             <label className="flex items-center gap-2 text-sm">
