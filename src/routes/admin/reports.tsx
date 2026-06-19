@@ -50,11 +50,11 @@ function Reports() {
     if (error) { setBusy(false); toast.error(error.message); return; }
 
     const allRows = (tickets ?? []) as TicketRow[];
-    const allowedCategories = new Set(
+    const allowedCategories = new Set<string>(
       CATEGORIES
         .filter((c) => departmentFilter === "all" || c.main === departmentFilter)
         .filter((c) => categoryFilter === "all" || c.value === categoryFilter)
-        .map((c) => c.value),
+        .map((c) => c.value as string),
     );
     const list = allRows.filter((t) => allowedCategories.has(t.category));
     const metrics = computeMetrics(list);
