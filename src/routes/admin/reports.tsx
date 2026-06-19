@@ -138,6 +138,24 @@ function Reports() {
                 <SelectItem value="monthly">Monthly (last 30d)</SelectItem>
               </SelectContent>
             </Select>
+            <Select value={departmentFilter} onValueChange={(v) => { setDepartmentFilter(v); setCategoryFilter("all"); }}>
+              <SelectTrigger className="w-[200px]"><SelectValue placeholder="Department" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All departments</SelectItem>
+                {MAIN_CATEGORIES.map((m) => (
+                  <SelectItem key={m} value={m}>{m}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <SelectTrigger className="w-[200px]"><SelectValue placeholder="Category" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All categories</SelectItem>
+                {CATEGORIES.filter((c) => departmentFilter === "all" || c.main === departmentFilter).map((c) => (
+                  <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <label className="flex items-center gap-2 text-sm">
               <input type="checkbox" checked={includeAI} onChange={(e) => setIncludeAI(e.target.checked)} className="accent-primary" />
               <Sparkles className="h-3.5 w-3.5 text-fuchsia-500" /> Include AI insights
